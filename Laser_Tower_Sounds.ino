@@ -6,6 +6,9 @@
 #include <SPI.h>
 #include <Adafruit_VS1053.h>
 #include <SD.h>
+#include <Wire.h>
+
+#define MAX9744_I2CADDR 0x4B
 
 // These are the pins used for the breakout example
 #define BREAKOUT_RESET  9      // VS1053 reset pin (output)
@@ -55,6 +58,9 @@ int keyfobPrevStateD = LOW;
 
 bool gameStarted = false;
 
+const int8_t thevol = 40; // Set initial volume (0-63)
+
+
 // phrases to say when the game is taking too long.  Triggered by button C after randomization is complete.
 int delayPhraseIndex = 0;
 const int NUM_DELAY_PHRASES = 2;
@@ -69,8 +75,8 @@ void setup() {
   Serial.begin(9600);
 
 
-  delayPhrases[0] = "/HURRY.mp3";
-  delayPhrases[1] = "/TKNGLNG.mp3";
+  delayPhrases[0] = "/HURRY.mp3";     // hurry up!
+  delayPhrases[1] = "/TKNGLNG.mp3";  // taking too long!
  // delayPhrases[2] = "/JEOTHEME.mp3";
 
 
@@ -93,6 +99,13 @@ void setup() {
   // Set volume for left, right channels. lower numbers == louder volume!
   musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
 
+  //Serial.println("MAX9744 demo");
+  //Wire.begin();
+  //if (!setvolume(thevol)) {
+  //    Serial.println("Failed to set volume, MAX9744 not found!");
+      //while (1);
+ // }
+
   //printDirectory(SD.open("/"), 0);
 
   randomSeed(millis());
@@ -104,6 +117,24 @@ void loop() {
   checkForRFSignal();
   delay(100);
 }
+
+/*
+boolean setvolume(int8_t v) {
+    if (v > 63) v = 63;
+    if (v < 0) v = 0;
+    Wire.beginTransmission(MAX9744_I2CADDR);
+    Wire.write(v);
+    Serial.println("about to call Wire.endTransmission");
+
+    int result = Wire.endTransmission();
+    Serial.println("done calling Wire.endTransmission");
+
+    Serial.print("Wire.endTransmission() result: ");
+    Serial.println(result);
+
+    return result == 0;
+}
+*/
 
 
 ////////////////////////////////////////////////////
